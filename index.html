@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест: Який тип свідомості вам властивий?</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .intro {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+        }
+        .question {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .question.active {
+            display: block;
+        }
+        .options {
+            margin-top: 15px;
+        }
+        .option {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .option:hover {
+            background-color: #e0e0e0;
+        }
+        .option input {
+            margin-right: 10px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .progress {
+            height: 5px;
+            background-color: #ecf0f1;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #3498db;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .result {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .result-title {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .result-description {
+            margin-bottom: 20px;
+        }
+        .restart-btn {
+            background-color: #27ae60;
+        }
+        .restart-btn:hover {
+            background-color: #219653;
+        }
+        .theory-scores {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .theory-score {
+            margin-bottom: 5px;
+        }
+        .score-bar {
+            height: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        .score-fill {
+            height: 100%;
+            border-radius: 5px;
+        }
+        .materialist { background-color: #3498db; }
+        .panpsychist { background-color: #9b59b6; }
+        .dualist { background-color: #e74c3c; }
+        .constructivist { background-color: #2ecc71; }
+    </style>
+</head>
+<body>
+    <h1>Тест: Який тип свідомості вам властивий?</h1>
+    
+    <div class="intro">
+        <p>Цей тест допоможе визначити ваш унікальний тип свідомості через ваші життєві переконання, досвід і сприйняття світу.</p>
+        <p>У кінці ви отримаєте результат у форматі: <strong>"Ти мислиш як представник [назва типу]!"</strong></p>
+    </div>
+    
+    <div class="progress">
+        <div class="progress-bar" id="progress"></div>
+    </div>
+    
+    <div id="quiz-container">
+        <!-- Питання будуть додаватись динамічно через JavaScript -->
+    </div>
+    
+    <div class="result" id="result">
+        <div class="result-title" id="result-title"></div>
+        <div class="result-description" id="result-description"></div>
+        <div class="theory-scores" id="theory-scores"></div>
+        <button class="restart-btn" id="restart-btn">Пройти тест знову</button>
+    </div>
+    
+    <script>
+        // Типи свідомості та їх описи
+        const theories = {
+            M: {
+                name: "Аналітик",
+                description: "Ваша свідомість працює як чіткий комп'ютер. Ви довіряєте фактам, логіці та науковим доказам. Для вас свідомість — це продукт нейронної активності мозку, який можна вивчити та пояснити.",
+                color: "materialist"
+            },
+            P: {
+                name: "Містик",
+                description: "Ви відчуваєте глибокий зв'язок з усім живе. Ваша свідомість не обмежується тілом — вона частина чогось більшого. Ви часто відчуваєте єдність з природою та Всесвітом.",
+                color: "panpsychist"
+            },
+            D: {
+                name: "Духовний шукач",
+                description: "Ви вірите, що людина — це не лише тіло. Ваша свідомість пов'язана з духовним початком, який може існувати поза фізичними межами. Ви часто замислюєтесь про сенс життя та природу душі.",
+                color: "dualist"
+            },
+            K: {
+                name: "Соціальний творець",
+                description: "Для вас свідомість формується через взаємодію з іншими. Ваші думки та ідеї народжуються в спілкуванні, культурі та соціальному середовищі. Ви вважаєте, що наша свідомість постійно змінюється під впливом оточення.",
+                color: "constructivist"
+            }
+        };
+        
+        // Питання та варіанти відповідей
+        const questions = [
+            {
+                question: "1. Як ви описали б своє ставлення до природи?",
+                options: [
+                    { text: "Це складна біологічна система, яку можна вивчити", points: { M: 2 } },
+                    { text: "Відчуваю глибокий емоційний зв'язок з усім живе", points: { P: 2 } },
+                    { text: "Бачу в ній прояв вищого задуму або духовного начала", points: { D: 2 } },
+                    { text: "Це частина нашого соціального середовища, що впливає на нас", points: { K: 2 } }
+                ],
+                type: "single"
+            },
+            {
+                question: "2. Що для вас є найважливішим у прийнятті рішень?",
+                options: [
+                    { text: "Логіка та раціональні аргументи", points: { M: 2 } },
+                    { text: "Внутрішній голос або інтуїція", points: { P: 1, D: 1 } },
+                    { text: "Досвід та поради близьких людей", points: { K: 2 } },
+                    { text: "Моральні принципи або духовні переконання", points: { D: 2 } }
+                ],
+                type: "single"
+            },
+            {
+                question: "3. Як ви ставитеся до сновидінь?",
+                options: [
+                    { text: "Це просто випадкові сигнали мозку", points: { M: 2 } },
+                    { text: "Вірю, що вони можуть мати глибокий сенс або зв'язок з іншими світами", points: { P: 2, D: 1 } },
+                    { text: "Часто аналізую їх, щоб краще зрозуміти себе", points: { K: 1 } },
+                    { text: "Рідко звертаю на них увагу", points: {} }
+                ],
+                type: "single"
+            },
+            {
+                question: "4. Що для вас найкраще описує поняття 'любов'?",
+                options: [
+                    { text: "Біохімічна реакція в мозку", points: { M: 2 } },
+                    { text: "Універсальна енергія, що зв'язує всі істоти", points: { P: 2 } },
+                    { text: "Духовний дар або божественне почуття", points: { D: 2 } },
+                    { text: "Соціальний конструкт, що розвивається в спілкуванні", points: { K: 2 } }
+                ],
+                type: "single"
+            },
+            {
+                question: "5. Як ви пояснюєте свої 'озарення' або раптові ідеї?",
+                options: [
+                    { text: "Це результат підсвідомої обробки інформації мозком", points: { M: 2 } },
+                    { text: "Це підказки Всесвіту або колективного розуму", points: { P: 2 } },
+                    { text: "Це натхнення від вищих сил або внутрішнього голосу", points: { D: 2 } },
+                    { text: "Це наслідок мого життєвого досвіду та спілкування", points: { K: 2 } }
+                ],
+                type: "single"
+            },
+            {
+                question: "6. Як ви відчуваєте себе в натовпі?",
+                options: [
+                    { text: "Аналізую поведінку людей навколо", points: { M: 1 } },
+                    { text: "Відчуваю енергію натовпу як єдиного організму", points: { P: 2 } },
+                    { text: "Прагну зберегти свою індивідуальність", points: { D: 1 } },
+                    { text: "Легко підлаштовуюсь під загальний настрій", points: { K: 2 } }
+                ],
+                type: "single"
+            },
+            {
+                question: "7. Що для вас найважливіше в мистецтві?",
+                options: [
+                    { text: "Техніка виконання та майстерність", points: { M: 1 } },
+                    { text: "Здатність передати універсальні істини або енергію", points: { P: 2 } },
+                    { text: "Духовний або емоційний вплив", points: { D: 2 } },
+                    { text: "Соціальний контекст та зв'язок з суспільством", points: { K: 2 } }
+                ],
+                type: "single"
+            },
+            {
+                question: "8. Як ви ставитеся до технологій?",
+                options: [
+                    { text: "Це логічний розвиток людського інтелекту", points: { M: 2 } },
+                    { text: "Вони повинні гармонійно поєднуватись з природою", points: { P: 1 } },
+                    { text: "Вони не повинні заміняти духовне життя", points: { D: 1 } },
+                    { text: "Це інструмент для соціального прогресу", points: { K: 2 } }
+                ],
+                type: "single"
+            },
+            {
+                question: "9. Що для вас означає 'бути щасливим'?",
+                options: [
+                    { text: "Досягти внутрішнього балансу та гармонії", points: { P: 1, D: 1 } },
+                    { text: "Реалізувати свій потенціал та досягти цілей", points: { M: 1 } },
+                    { text: "Бути частиною чогось більшого, ніж ти сам", points: { P: 2 } },
+                    { text: "Мати гарні стосунки з оточуючими", points: { K: 2 } }
+                ],
+                type: "single"
+            },
+            {
+                question: "10. Як ви вважаєте, що відбувається після смерті?",
+                options: [
+                    { text: "Життя просто припиняється", points: { M: 2 } },
+                    { text: "Енергія/свідомість повертається до Всесвіту", points: { P: 2 } },
+                    { text: "Душа продовжує існування в іншій формі", points: { D: 2 } },
+                    { text: "Людина продовжує жити в пам'яті інших", points: { K: 2 } }
+                ],
+                type: "single"
+            },
+            {
+                question: "11. Як ви ставитеся до поняття 'доля'?",
+                options: [
+                    { text: "Не вірю в долю, кожен творить своє життя сам", points: { M: 2 } },
+                    { text: "Все в житті пов'язано і має глибший сенс", points: { P: 2 } },
+                    { text: "Може існувати вищий задум, але є свобода вибору", points: { D: 2 } },
+                    { text: "Наше життя формується соціальними умовами", points: { K: 2 } }
+                ],
+                type: "single"
+            },
+            {
+                question: "12. Якби ви могли обрати надздібність, що це було б?",
+                options: [
+                    { text: "Надлюдський інтелект", points: { M: 2 } },
+                    { text: "Здатність відчувати енергію всіх живих істот", points: { P: 2 } },
+                    { text: "Духовне бачення або зв'язок з іншими світами", points: { D: 2 } },
+                    { text: "Здатність досконало розуміти інших людей", points: { K: 2 } }
+                ],
+                type: "single"
+            }
+        ];
+        
+        // Змінні стану
+        let currentQuestion = 0;
+        let scores = { M: 0, P: 0, D: 0, K: 0 };
+        let userAnswers = Array(questions.length).fill(null);
+        
+        // Ініціалізація тесту
+        function initQuiz() {
+            const quizContainer = document.getElementById('quiz-container');
+            
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = `question ${index === 0 ? 'active' : ''}`;
+                questionDiv.id = `question-${index}`;
+                
+                questionDiv.innerHTML = `
+                    <h3>${q.question}</h3>
+                    <div class="options" id="options-${index}"></div>
+                    <div class="navigation">
+                        ${index > 0 ? `<button onclick="prevQuestion()">Назад</button>` : '<div></div>'}
+                        ${index < questions.length - 1 ? `<button onclick="nextQuestion()" ${index === 0 ? 'disabled' : ''}>Далі</button>` : `<button onclick="showResult()">Завершити тест</button>`}
+                    </div>
+                `;
+                
+                quizContainer.appendChild(questionDiv);
+                
+                const optionsDiv = document.getElementById(`options-${index}`);
+                q.options.forEach((option, optIndex) => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'option';
+                    
+                    if (q.type === 'single') {
+                        optionDiv.innerHTML = `
+                            <input type="radio" name="question-${index}" id="question-${index}-option-${optIndex}" value="${optIndex}" onclick="selectOption(${index}, ${optIndex})">
+                            <label for="question-${index}-option-${optIndex}">${option.text}</label>
+                        `;
+                    }
+                    
+                    optionsDiv.appendChild(optionDiv);
+                });
+            });
+            
+            updateProgress();
+        }
+        
+        // Обробник вибору варіанту
+        function selectOption(qIndex, optIndex) {
+            userAnswers[qIndex] = optIndex;
+            
+            // Активуємо кнопку "Далі" для поточного питання
+            const questionDiv = document.getElementById(`question-${qIndex}`);
+            const nextBtn = questionDiv.querySelector('.navigation button:last-child');
+            if (nextBtn && nextBtn.disabled) {
+                nextBtn.disabled = false;
+            }
+            
+            // Якщо це останнє питання, активуємо кнопку "Завершити тест"
+            if (qIndex === questions.length - 1) {
+                const finishBtn = questionDiv.querySelector('.navigation button:last-child');
+                if (finishBtn) {
+                    finishBtn.disabled = false;
+                }
+            }
+        }
+        
+        // Наступне питання
+        function nextQuestion() {
+            if (userAnswers[currentQuestion] === null) return;
+            
+            document.getElementById(`question-${currentQuestion}`).classList.remove('active');
+            currentQuestion++;
+            document.getElementById(`question-${currentQuestion}`).classList.add('active');
+            updateProgress();
+        }
+        
+        // Попереднє питання
+        function prevQuestion() {
+            document.getElementById(`question-${currentQuestion}`).classList.remove('active');
+            currentQuestion--;
+            document.getElementById(`question-${currentQuestion}`).classList.add('active');
+            updateProgress();
+        }
+        
+        // Оновлення індикатора прогресу
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        }
+        
+        // Показати результати
+        function showResult() {
+            if (userAnswers[currentQuestion] === null) return;
+            
+            // Підрахунок балів
+            calculateScores();
+            
+            // Визначення переможця
+            const winner = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+            const winnerTheory = theories[winner];
+            
+            // Показ результатів
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('result-title').textContent = `Ти мислиш як ${winnerTheory.name}!`;
+            document.getElementById('result-description').textContent = winnerTheory.description;
+            
+            // Додаткові результати
+            const theoryScoresDiv = document.getElementById('theory-scores');
+            theoryScoresDiv.innerHTML = '<h4>Ваші результати за типами свідомості:</h4>';
+            
+            Object.keys(theories).forEach(key => {
+                const theory = theories[key];
+                const maxScore = questions.reduce((sum, q) => {
+                    return sum + Math.max(...q.options.map(opt => opt.points[key] || 0));
+                }, 0);
+                
+                const percentage = Math.round((scores[key] / maxScore) * 100);
+                
+                const theoryDiv = document.createElement('div');
+                theoryDiv.className = 'theory-score';
+                theoryDiv.innerHTML = `
+                    <div>${theory.name}: ${scores[key]} балів</div>
+                    <div class="score-bar">
+                        <div class="score-fill ${theory.color}" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                
+                theoryScoresDiv.appendChild(theoryDiv);
+            });
+            
+            // Прокрутка до результатів
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Підрахунок балів
+        function calculateScores() {
+            // Скидання балів
+            scores = { M: 0, P: 0, D: 0, K: 0 };
+            
+            // Обчислення балів за відповіді
+            userAnswers.forEach((answerIndex, qIndex) => {
+                if (answerIndex !== null) {
+                    const selectedOption = questions[qIndex].options[answerIndex];
+                    Object.keys(selectedOption.points).forEach(key => {
+                        scores[key] += selectedOption.points[key];
+                    });
+                }
+            });
+        }
+        
+        // Перезапуск тесту
+        document.getElementById('restart-btn').addEventListener('click', function() {
+            currentQuestion = 0;
+            scores = { M: 0, P: 0, D: 0, K: 0 };
+            userAnswers = Array(questions.length).fill(null);
+            
+            document.getElementById('quiz-container').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            
+            // Скидання вибраних відповідей
+            document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.checked = false;
+            });
+            
+            // Скидання активного питання
+            document.querySelectorAll('.question').forEach((q, index) => {
+                q.classList.remove('active');
+                if (index === 0) q.classList.add('active');
+                
+                // Скидання кнопок "Далі"
+                if (index < questions.length - 1) {
+                    const nextBtn = q.querySelector('.navigation button:last-child');
+                    if (nextBtn && index !== 0) nextBtn.disabled = true;
+                }
+            });
+            
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        // Запуск тесту при завантаженні сторінки
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
